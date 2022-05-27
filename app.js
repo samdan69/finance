@@ -11,6 +11,7 @@ var uiController = (function () {
     incomeLabel: ".budget__income--value",
     expenseLabel: ".budget__expenses--value",
     percentageLabel: ".budget__expenses--percentage",
+    containerDiv: ".container",
   };
   return {
     getInput: function () {
@@ -57,6 +58,11 @@ var uiController = (function () {
         document.querySelector(DOMstrings.percentageLabel).textContent =
           tusuv.huvi;
       }
+    },
+
+    deleteListItem: function (id) {
+      var el = document.getElementById(id);
+      el.parentNode.removeChild(el);
     },
 
     addListItem: function (item, type) {
@@ -147,6 +153,18 @@ var financeController = (function () {
       };
     },
 
+    deleteItem: function (type, id) {
+      var ids = data.items[type].map(function (el) {
+        return el.id;
+      });
+
+      var index = ids.indexOf(id);
+
+      if (index !== -1) {
+        data.items[type].splice(index, 1);
+      }
+    },
+
     addItem: function (type, desc, val) {
       var item, id;
 
@@ -213,6 +231,25 @@ var appController = (function (uiController, financeController) {
         ctrlAddItem();
       }
     });
+
+    document
+      .querySelector(DOM.containerDiv)
+      .addEventListener("click", function (event) {
+        var id = event.target.parentNode.parentNode.parentNode.parentNode.id;
+        if (id) {
+          var arr = id.split("-");
+          var type = arr[0];
+          var itemId = parseInt(arr[1]);
+
+          // 1. Санхүүгийн модулиас type, id ашиглан устгана.
+          financeController.deleteItem(type, itemId);
+
+          // 2. Дэлгэц дээрээс энэ элементийг устгана.
+          uiController.deleteListItem(id);
+
+          // 3. Үлдэгдэл тооцоог шинэчилж харуулна.
+        }
+      });
   };
 
   return {
